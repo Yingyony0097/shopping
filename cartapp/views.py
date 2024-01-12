@@ -13,7 +13,7 @@ def create_cartId(request):
 def removeCart(request,product_id):
     cart=Cart.objects.get(cart_id=create_cartId(request),customer=request.user)
     product=Product.objects.get(pk=product_id)
-    cartItem=CartItem.objects.get(product=product,cart=cart)#สินค้าที่ต้องการลบ
+    cartItem=CartItem.objects.get(product=product,cart=cart)#ສິນຄ້າທີ່ຕ້ອງການລົບ
     cartItem.delete()
     return redirect("/cart")
 
@@ -23,9 +23,10 @@ def cart(request):
     counter=0
     total=0
     try:
-        #ดึงข้อมูลตะกร้าสินค้า
+        #ດຶງຂໍ້ມູນກະຕ່າສິນຄ້າ
+
         cart=Cart.objects.get(cart_id=create_cartId(request),customer=request.user)
-        #ดึงข้อมูลสินค้าในตะกร้า
+        #ດຶງຂໍ້ມູນສິນຄ້າໃນກະຕ່າ
         cartItem=CartItem.objects.filter(cart=cart)
         for item in cartItem:
             counter+=item.quantity # 3, 1
@@ -38,26 +39,26 @@ def cart(request):
 @login_required(login_url="/login")
 def addCart(request,product_id):
     product=Product.objects.get(pk=product_id)
-    #สร้างตะกร้าสินค้า
+    #ສ້າງກະຕ່າສິນຄ້າ
     try:
-        #มีตะกร้าสินค้า
+        #ມີກະຕ່າສິນຄ້າ 
         cart=Cart.objects.get(cart_id=create_cartId(request))
     except Cart.DoesNotExist:
-        #ไม่มีตะกร้า
+        #ບໍ່ມີກະຕ່າສິນຄ້າ
         cart=Cart.objects.create(
             cart_id=create_cartId(request),
             customer=request.user
         )
         cart.save()
-    #บันทึกรายการสินค้าในตะกร้า
+    #ບັນທືກລາຍການສິນຄ້າໃນກະຕ່າ
     try:
-        #ซื้อสินค้าตัวเดิม
+        #ຊື້ສິນຄ້າອັນເກົ່າ
         cartitem=CartItem.objects.get(product=product,cart=cart)
         if cartitem.quantity<cartitem.product.stock:
             cartitem.quantity+=1
             cartitem.save()
     except CartItem.DoesNotExist:
-        #ซื้อสินค้า
+        #ຊື້ສິນຄ້າ
         cartitem=CartItem.objects.create(
             product=product,
             cart=cart,
